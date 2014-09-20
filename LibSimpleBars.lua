@@ -1,7 +1,6 @@
 --[[
 Name: LibSimpleBars-1.0
-Revision: $Revision: 2 $
-Author: msc_
+Author: mscv
 Inspired By: LibCandyBar-3.0 for WoW
 Dependencies: none
 Description: LibSimpleBars is a simple library allowing for standardized creation and manipulation of timer bars.
@@ -24,7 +23,7 @@ All methods for bar manipulation may be used on running bars as well.
 ]]--
 
 
-local MAJOR, MINOR = "LibSimpleBars-1.0", 2
+local MAJOR, MINOR = "LibSimpleBars-1.0", 3
 -- Get a reference to the package information if any
 local APkg = Apollo.GetPackage(MAJOR)
 -- If there was an older version loaded we need to see if this is newer
@@ -208,7 +207,7 @@ do
 -- Set whether the bar should show time remaining, default: true
 	function barPrototype:SetTimeVisibility(blVisible)
 		self.wndDuration:Show(blVisible)
-		self.showRemaining(blVisible)
+		self.showRemaining = blVisible
 	end
 
 -- Set the bar's elapsed time
@@ -260,6 +259,12 @@ do
 		self:SetHeight()
 	end
 
+-- Set the bar's font
+	function barPrototype:SetFont(strFont)
+		self.wndLabel:SetFont(strFont)
+		self.wndDuration:SetFont(strFont)
+	end
+	
 -- Set the bar's backdrop texture & color
 	function barPrototype:SetTextureBG(strSprite, strColor)
 		self.wndFrame:SetSprite(strSprite)
@@ -291,7 +296,9 @@ do
 		end
 		
 		local wndFrame = Apollo.LoadForm(BAR_TEMPLATE_XMLDOC, "BarTemplate", wndParent, self)
-			
+		
+		wndFrame:SetData({ barId = intId })
+		
 		newBar = setmetatable( {
 			id = intId,
 			wndFrame = wndFrame,
@@ -330,7 +337,7 @@ do
 	local BAR_UPDATE_FREQUENCY = 0.1 
 	local _lastUpdate
 
-	-- shouldn't really be exposed, but ...	
+	-- shoul really be a local function, but ApolloTimer is dumb
 	function LibSimpleBars:_ProcessBars()
 		local currentTime = GameLib.GetGameTime()
 		
