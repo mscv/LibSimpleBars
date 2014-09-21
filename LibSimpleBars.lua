@@ -264,16 +264,26 @@ do
 		self.wndLabel:SetFont(strFont)
 		self.wndDuration:SetFont(strFont)
 	end
+
+-- Set the bar's text color
+	function barPrototype:SetTextColor(strColor)
+		self.wndLabel:SetTextColor(strColor)
+		self.wndDuration:SetTextColor(strColor)
+	end
 	
 -- Set the bar's backdrop texture & color
 	function barPrototype:SetTextureBG(strSprite, strColor)
-		self.wndFrame:SetSprite(strSprite)
+		if strSprite then
+			self.wndFrame:SetSprite(strSprite)
+		end
 		self.wndFrame:SetBGColor(strColor)
 	end
 
 -- Set the bar's texture & color
 	function barPrototype:SetTextureBar(strSprite, strColor)
-		self.wndProgressBar:SetFullSprite(strSprite)
+		if strSprite then
+			self.wndProgressBar:SetFullSprite(strSprite)
+		end
 		self.wndProgressBar:SetBarColor(strColor)
 	end
 
