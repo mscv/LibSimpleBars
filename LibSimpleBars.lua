@@ -23,7 +23,7 @@ All methods for bar manipulation may be used on running bars as well.
 ]]--
 
 
-local MAJOR, MINOR = "LibSimpleBars-1.0", 3
+local MAJOR, MINOR = "LibSimpleBars-1.0", 4 
 -- Get a reference to the package information if any
 local APkg = Apollo.GetPackage(MAJOR)
 -- If there was an older version loaded we need to see if this is newer
@@ -32,6 +32,14 @@ if APkg and (APkg.nVersion or 0) >= MINOR then
 end
 
 require "Apollo"
+require "ApolloTimer"
+require "GameLib"
+require "XmlDoc"
+
+local Apollo, ApolloTimer, XmlDoc = Apollo, ApolloTimer, XmlDoc
+
+local max, strformat, getTime = math.max, string.format, GameLib.GetGameTime
+
 
 -----------------------------------------------------------------------------------------------
 -- LibSimpleBars Module Definition
@@ -167,8 +175,8 @@ do
 
 	
 -- Set bar label
-	function barPrototype:SetLabel(text)
-		self.wndLabel:SetText(text)
+	function barPrototype:SetLabel(strText)
+		self.wndLabel:SetText(strText)
 	end
 
 -- Set whether the bar should fill up instead of draining, default: false
@@ -180,7 +188,7 @@ do
 -- Set the bar's total duration in seconds.
 	function barPrototype:SetDuration(intSeconds)
 		self.timeTotal = intSeconds
-		self.timeRemaining = math.max(0, self.timeTotal - self.timeElapsed)
+		self.timeRemaining = max(0, self.timeTotal - self.timeElapsed)
 		self.wndProgressBar:SetMax(self.timeTotal)
 		self:SetValue(self.timeElapsed)
 	end
@@ -213,11 +221,11 @@ do
 -- Set the bar's elapsed time
 	function barPrototype:SetValue(intElapsed)
 		self.timeElapsed = intElapsed
-		self.timeRemaining = math.max(0, self.timeTotal - self.timeElapsed)
+		self.timeRemaining = max(0, self.timeTotal - self.timeElapsed)
 
 		self.wndProgressBar:SetProgress(self.fill and self.timeElapsed or self.timeRemaining)
 		if self.showRemaining then
-			self.wndDuration:SetText(string.format("%.1fs", self.timeRemaining))
+			self.wndDuration:SetText(strformat("%.1fs", self.timeRemaining))
 		end
 	end
 
@@ -309,7 +317,7 @@ do
 		
 		wndFrame:SetData({ barId = intId })
 		
-		newBar = setmetatable( {
+		local newBar = setmetatable( {
 			id = intId,
 			wndFrame = wndFrame,
 			wndLabel = wndFrame:FindChild("Label"),
@@ -347,19 +355,19 @@ do
 	local BAR_UPDATE_FREQUENCY = 0.1 
 	local _lastUpdate
 
-	-- shoul really be a local function, but ApolloTimer is dumb
+	-- should really be a local function, but ApolloTimer is dumb
 	function LibSimpleBars:_ProcessBars()
-		local currentTime = GameLib.GetGameTime()
+		local currentTime = getTime()
 		
 		local diff = _lastUpdate and ( currentTime - _lastUpdate ) or BAR_UPDATE_FREQUENCY -- on first run after stop, difference estimated
-		for _, bar in pairs(_bars) do
+		for _, bar in next, _bars do
 			if bar.isRunning ~= nil then
 				if bar.timeRemaining <= diff then
 					bar:Stop()
 				else
 					bar:SetValue(bar.timeElapsed + diff)
 					if bar.onUpdateCallbacks then
-						for _, cb in pairs(bar.onUpdateCallbacks) do
+						for _, cb in next, bar.onUpdateCallbacks do
 							cb.object[cb.method](cb.object, bar)
 						end
 					end
@@ -382,6 +390,7 @@ do
 
 	function LibSimpleBars:OnLoad()
 		_timer = ApolloTimer.Create(BAR_UPDATE_FREQUENCY, true, "_ProcessBars", self)
+		_timer:Stop()
 	end
 end
 
