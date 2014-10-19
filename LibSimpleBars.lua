@@ -38,7 +38,7 @@ require "XmlDoc"
 
 local Apollo, ApolloTimer, XmlDoc = Apollo, ApolloTimer, XmlDoc
 
-local max, strformat, getTime = math.max, string.format, GameLib.GetGameTime
+local max, strformat, getTime, next, setmetatable = math.max, string.format, GameLib.GetGameTime, next, setmetatable
 
 
 -----------------------------------------------------------------------------------------------
@@ -202,7 +202,7 @@ do
 -- Destroy the bar
 	function barPrototype:Stop()
 		if self.onFinishCallbacks then
-			for _, cb in pairs(self.onFinishCallbacks) do
+			for _, cb in next, self.onFinishCallbacks do
 				cb.object[cb.method](cb.object, self)
 			end
 		end
@@ -238,7 +238,7 @@ do
 -- Seth the bar's height. Also called on icon changes to reset anchor offsets
 	function barPrototype:SetHeight(intHeight)
 		if intHeight == nil then
-			_,_,_,intHeight = self.wndIcon:GetAnchorOffsets()
+			local _,_,_,intHeight = self.wndIcon:GetAnchorOffsets()
 		end
 		
 		local left, top, right, bottom = self.wndFrame:GetAnchorOffsets()
@@ -257,7 +257,6 @@ do
 
 		local left, top, right, bottom = self.wndLabel:GetAnchorOffsets()
 		self.wndLabel:SetAnchorOffsets(intHeight + 5, top, right, bottom)
-
 	end
 
 -- Set the bar's icon
@@ -313,7 +312,7 @@ do
 			_bars[intId]:Stop()
 		end
 		
-		local wndFrame = Apollo.LoadForm(BAR_TEMPLATE_XMLDOC, "BarTemplate", wndParent, self)
+		local wndFrame = Apollo.LoadForm(BAR_TEMPLATE_XMLDOC, "BarTemplate", wndParent, nil)
 		
 		wndFrame:SetData({ barId = intId })
 		
