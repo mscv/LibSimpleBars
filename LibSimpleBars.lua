@@ -238,7 +238,8 @@ do
 -- Seth the bar's height. Also called on icon changes to reset anchor offsets
 	function barPrototype:SetHeight(intHeight)
 		if intHeight == nil then
-			local _,_,_,intHeight = self.wndIcon:GetAnchorOffsets()
+			local _,_,_,intH = self.wndIcon:GetAnchorOffsets()
+			intHeight = intH
 		end
 		
 		local left, top, right, bottom = self.wndFrame:GetAnchorOffsets()
